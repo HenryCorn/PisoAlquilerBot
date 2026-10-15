@@ -1,0 +1,106 @@
+search:
+  max_total_monthly_cost: 1500
+  borderline_buffer: 50
+  portal_search_max_base_rent: 1500
+  minimum_bedrooms: 1
+  target_move_in: "04-15"
+  priority_outcodes: [SW11, SW8, E8, E9, E2, N1, N16]
+  allowed_outcodes:
+    - W1
+    - W2
+    - W3
+    - W4
+    - W5
+    - W6
+    - W8
+    - W9
+    - W10
+    - W11
+    - W12
+    - W14
+    - WC1
+    - WC2
+    - SW1
+    - SW2
+    - SW3
+    - SW4
+    - SW5
+    - SW6
+    - SW7
+    - SW8
+    - SW9
+    - SW10
+    - SW11
+    - SW12
+    - SW13
+    - SW14
+    - SW15
+    - SW16
+    - SW17
+    - SE1
+    - SE5
+    - SE8
+    - SE10
+    - SE11
+    - SE15
+    - SE16
+    - SE17
+    - SE21
+    - SE22
+    - SE24
+    - N1
+    - N4
+    - N5
+    - N6
+    - N7
+    - N8
+    - N10
+    - N11
+    - N15
+    - N16
+    - NW1
+    - NW3
+    - NW5
+    - NW6
+    - NW8
+    - E1
+    - E2
+    - E3
+    - E5
+    - E8
+    - E9
+    - E14
+    - E20
+  max_commute_minutes: 40
+  battersea_max_commute_minutes: 43
+  utilities_epc_a_c: 130
+  utilities_epc_d_e: 175
+  default_utilities: 175
+  council_tax_monthly:
+    WANDSWORTH: {A: 62, B: 72, C: 83, D: 93}
+    HACKNEY: {A: 104, B: 121, C: 138, D: 155}
+    TOWER HAMLETS: {A: 94, B: 110, C: 125, D: 141}
+    LAMBETH: {A: 115, B: 134, C: 153, D: 172}
+    SOUTHWARK: {A: 111, B: 129, C: 148, D: 166}
+    DEFAULT: {A: 110, B: 128, C: 146, D: 164}
+  borough_by_outcode:
+    SW11: WANDSWORTH
+    SW8: LAMBETH
+    E8: HACKNEY
+    E9: HACKNEY
+    E2: TOWER HAMLETS
+    N1: HACKNEY
+    N16: HACKNEY
+portals:
+  openrent_urls:
+    - https://www.openrent.co.uk/properties-to-rent/london?term=London&prices_max=1500&bedrooms_min=1
+  rightmove_urls:
+    - https://www.rightmove.co.uk/property-to-rent/find.html?locationIdentifier=REGION%5E87490&maxPrice=1500&minBedrooms=1&propertyTypes=flat
+  zoopla_urls:
+    - https://www.zoopla.co.uk/to-rent/property/london/?beds_min=1&price_frequency=per_month&price_max=1500
+runtime:
+  database_path: pisorent.db
+  request_timeout_seconds: 20
+  poll_interval_seconds: 300
+  browser_fallback: true
+  status_updates: false

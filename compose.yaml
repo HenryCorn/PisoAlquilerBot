@@ -1,0 +1,13 @@
+services:
+  pisorent:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ./data:/app/data
+      - ./config.yaml:/app/config.yaml:ro
+    command: ["pisorent", "daemon", "--config", "/app/config.yaml"]
+    environment:
+      - PISORENT_DATABASE_PATH=/app/data/pisorent.db
