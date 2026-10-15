@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 from .config import load_settings
 from .service import daemon, run_once
-from .store import ListingStore
+from .store import open_store
 from .telegram import TelegramNotifier
 
 
@@ -32,7 +32,7 @@ def main() -> None:
         token = os.getenv("TELEGRAM_BOT_TOKEN")
         if not token:
             raise RuntimeError("TELEGRAM_BOT_TOKEN is required")
-        store = ListingStore(settings.runtime["database_path"])
+        store = open_store(settings.runtime["database_path"])
         TelegramNotifier(token, os.getenv("TELEGRAM_CHAT_ID", ""), store).run_polling()
 
 

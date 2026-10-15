@@ -13,7 +13,7 @@ from .filtering import evaluate
 from .media import floorplan_text
 from .models import Listing, Portal
 from .portals import OpenRentAdapter, PortalAdapter, RightmoveAdapter, ZooplaAdapter
-from .store import ListingStore, fingerprint
+from .store import fingerprint, open_store
 from .telegram import TelegramNotifier
 
 LOGGER = logging.getLogger(__name__)
@@ -100,7 +100,7 @@ async def run_once(settings: Settings) -> int:
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
     if not token or not chat_id:
         raise RuntimeError("TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID are required")
-    store = ListingStore(settings.runtime["database_path"])
+    store = open_store(settings.runtime["database_path"])
     notifier = TelegramNotifier(token, chat_id, store)
     try:
         scraped, over_budget = await scrape(settings)

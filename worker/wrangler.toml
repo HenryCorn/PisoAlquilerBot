@@ -1,0 +1,11 @@
+name = "pisorent-telegram"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+# Secrets (set with `npx wrangler secret put <NAME>`):
+#   TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, TELEGRAM_WEBHOOK_SECRET
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pisorent"
+database_id = "f0ceae0c-591d-4a72-b8d9-624b37ba5b91"

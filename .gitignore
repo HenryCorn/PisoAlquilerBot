@@ -8,3 +8,5 @@ __pycache__/
 *.db
 artifacts/
 playwright-report/
+worker/.wrangler/
+worker/node_modules/

@@ -19,3 +19,5 @@ jobs:
       - run: mypy src
       - run: pytest -q
       - run: python -m compileall -q src
+      - run: npm test
+        working-directory: worker
