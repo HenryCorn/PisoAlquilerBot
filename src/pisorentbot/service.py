@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+from collections import Counter
 
 import httpx
 
@@ -53,6 +54,7 @@ async def scrape(settings: Settings) -> tuple[list[Listing], list[Listing]]:
         planner = TflJourneyPlanner(client)
         accepted: list[Listing] = []
         over_budget: list[Listing] = []
+        rejections: Counter[str] = Counter()
         for listing in candidates:
             listing.borough = settings.search["borough_by_outcode"].get(listing.outcode, "")
             ocr_text = await floorplan_text(client, listing)
@@ -60,11 +62,15 @@ async def scrape(settings: Settings) -> tuple[list[Listing], list[Listing]]:
                 listing.key_features.append(ocr_text)
             static_decision = evaluate(listing, settings, require_commute=False)
             if not static_decision.accepted:
+                rejections[static_decision.reason] += 1
                 if static_decision.reason == "estimated total cost too high":
                     over_budget.append(listing)
                 continue
             await planner.enrich(listing)
-            if evaluate(listing, settings).accepted:
+            decision = evaluate(listing, settings)
+            if not decision.accepted:
+                rejections[decision.reason] += 1
+            else:
                 try:
                     await enrich_crime(
                         client,
@@ -74,6 +80,12 @@ async def scrape(settings: Settings) -> tuple[list[Listing], list[Listing]]:
                 except httpx.HTTPError:
                     LOGGER.warning("Crime lookup failed for %s", listing.url)
                 accepted.append(listing)
+        LOGGER.info(
+            "Scraped %d candidates, %d accepted; rejected: %s",
+            len(candidates),
+            len(accepted),
+            dict(rejections.most_common()) or "none",
+        )
         return accepted, over_budget
 
 

@@ -106,7 +106,19 @@ class PortalAdapter(ABC):
         seen_urls: set[str] = set()
         for search_url in self.search_urls:
             html = await self._fetch(search_url)
-            for url in self.detail_urls(html, search_url):
+            urls = list(dict.fromkeys(self.detail_urls(html, search_url)))
+            if urls:
+                LOGGER.info("%s: %d listings on %s", self.portal, len(urls), search_url)
+            else:
+                title = BeautifulSoup(html, "lxml").title
+                LOGGER.warning(
+                    "%s: no listings on %s (page title %r, %d bytes; blocked?)",
+                    self.portal,
+                    search_url,
+                    title.get_text(strip=True) if title else "",
+                    len(html),
+                )
+            for url in urls:
                 if url in seen_urls:
                     continue
                 seen_urls.add(url)
