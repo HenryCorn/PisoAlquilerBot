@@ -76,6 +76,7 @@ search:
   utilities_epc_a_c: 130
   utilities_epc_d_e: 175
   default_utilities: 175
+  crime_incidents_for_max_score: 250
   council_tax_monthly:
     WANDSWORTH: {A: 62, B: 72, C: 83, D: 93}
     HACKNEY: {A: 104, B: 121, C: 138, D: 155}

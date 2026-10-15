@@ -47,6 +47,7 @@ class Listing:
     council_tax_included: bool = False
     commute_a: Commute | None = None
     commute_b: Commute | None = None
+    crime_score: int | None = None
     total_monthly_cost: int | None = None
     council_tax_cost: int = 0
     utilities_cost: int = 0

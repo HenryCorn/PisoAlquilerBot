@@ -41,19 +41,45 @@ def _map_url(listing: Listing) -> str | None:
                 f"lonlat:{SHOREDITCH[1]},{SHOREDITCH[0]};color:%238e24aa;text:B",
             ]
         ),
-        "geometry": "|".join(
-            [
-                "polyline:"
-                f"{listing.longitude},{listing.latitude},{OXFORD_CIRCUS[1]},{OXFORD_CIRCUS[0]}"
-                ";color:%231e88e5;opacity:60;width:3",
-                "polyline:"
-                f"{listing.longitude},{listing.latitude},{SHOREDITCH[1]},{SHOREDITCH[0]}"
-                ";color:%238e24aa;opacity:60;width:3",
-            ]
-        ),
         "apiKey": api_key,
     }
     return f"https://maps.geoapify.com/v1/staticmap?{urlencode(params, safe=':,;|%')}"
+
+
+def _draw_dashed_routes(image: Image.Image, listing: Listing) -> None:
+    if listing.latitude is None or listing.longitude is None:
+        return
+    points = [(listing.latitude, listing.longitude), OXFORD_CIRCUS, SHOREDITCH]
+    min_lat = min(point[0] for point in points) - 0.01
+    max_lat = max(point[0] for point in points) + 0.01
+    min_lon = min(point[1] for point in points) - 0.01
+    max_lon = max(point[1] for point in points) + 0.01
+
+    def pixel(point: tuple[float, float]) -> tuple[int, int]:
+        latitude, longitude = point
+        x = round((longitude - min_lon) / (max_lon - min_lon) * MAP_WIDTH)
+        y = round((max_lat - latitude) / (max_lat - min_lat) * HEIGHT)
+        return x, y
+
+    draw = ImageDraw.Draw(image, "RGBA")
+    home = pixel(points[0])
+    for destination, color in ((points[1], "#1e88e5"), (points[2], "#8e24aa")):
+        end = pixel(destination)
+        steps = 20
+        for step in range(0, steps, 2):
+            start_ratio = step / steps
+            end_ratio = min((step + 1) / steps, 1)
+            segment = (
+                (
+                    home[0] + (end[0] - home[0]) * start_ratio,
+                    home[1] + (end[1] - home[1]) * start_ratio,
+                ),
+                (
+                    home[0] + (end[0] - home[0]) * end_ratio,
+                    home[1] + (end[1] - home[1]) * end_ratio,
+                ),
+            )
+            draw.line(segment, fill=color + "99", width=4)
 
 
 async def _download(client: httpx.AsyncClient, url: str | None) -> Image.Image | None:
@@ -112,6 +138,8 @@ async def build_banner(client: httpx.AsyncClient, listing: Listing) -> io.BytesI
         _download(client, _map_url(listing)),
         *(_download(client, url) for url in urls),
     )
+    if map_image:
+        _draw_dashed_routes(map_image, listing)
     canvas = Image.new("RGB", (WIDTH, HEIGHT), "white")
     canvas.paste(_cover(map_image, (MAP_WIDTH, HEIGHT), "Map unavailable"), (0, 0))
     panel_width = (WIDTH - MAP_WIDTH) // 2

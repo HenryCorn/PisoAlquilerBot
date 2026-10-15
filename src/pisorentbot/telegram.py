@@ -48,6 +48,25 @@ def render_card(listing: Listing, index: int, price_drop: bool = False) -> str:
             key=lambda item: item[0] != "OpenRent",
         )
     ) or html.escape(listing.portal.value)
+    if listing.crime_score is None:
+        crime = "⚪ N/A"
+    else:
+        indicator = "🟢" if listing.crime_score < 34 else "🟡" if listing.crime_score < 67 else "🔴"
+        crime = f"{indicator} {listing.crime_score}/100"
+    amenity_words = {
+        "balcony": "🌿 Balcony",
+        "washer": "🧺 Washer",
+        "washing machine": "🧺 Washer",
+        "dishwasher": "🍽️ Dishwasher",
+    }
+    amenities = list(
+        dict.fromkeys(
+            label for word, label in amenity_words.items() if word in listing.searchable_text
+        )
+    )
+    final_line = f"🛡️ Crime: {crime} · 🏠 {links}"
+    if amenities:
+        final_line += " · " + " · ".join(amenities)
     return "\n".join(
         [
             f'<b>#{index} · {badges}{html.escape(area)} · '
@@ -65,7 +84,7 @@ def render_card(listing: Listing, index: int, price_drop: bool = False) -> str:
             f"<i>({html.escape(commute_a.summary)})</i>",
             f"🚇 <b>B (Shoreditch):</b> {commute_b.minutes}m "
             f"<i>({html.escape(commute_b.summary)})</i>",
-            f"🏠 {links}",
+            final_line,
         ]
     )
 

@@ -8,6 +8,7 @@ import httpx
 
 from .commute import TflJourneyPlanner
 from .config import Settings
+from .crime import enrich_crime
 from .filtering import evaluate
 from .media import floorplan_text
 from .models import Listing, Portal
@@ -64,6 +65,14 @@ async def scrape(settings: Settings) -> tuple[list[Listing], list[Listing]]:
                 continue
             await planner.enrich(listing)
             if evaluate(listing, settings).accepted:
+                try:
+                    await enrich_crime(
+                        client,
+                        listing,
+                        settings.search["crime_incidents_for_max_score"],
+                    )
+                except httpx.HTTPError:
+                    LOGGER.warning("Crime lookup failed for %s", listing.url)
                 accepted.append(listing)
         return accepted, over_budget
 
